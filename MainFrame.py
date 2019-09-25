@@ -37,26 +37,27 @@ if __name__ == '__main__':
     while dt <= e_time:
         strdate = dt.strftime('%Y%m%d')
         # 拼接L2 1min 输入、输出目录
-        L2_1min_pathin = os.path.join( FILE_PATH['1MinFilePath'], strdate)
-        L2_1min_pathout = os.path.join( FILE_PATH['1MinOutPath'], strdate)
+        L2_1min_pathin = os.path.join( PATH_1MinFile, strdate)
+        L2_1min_pathout = os.path.join( PATH_1MinOut, strdate)
         if not os.path.isdir(L2_1min_pathout):
             print('%s is not exist, will be created!!' %L2_1min_pathout)
             os.makedirs(L2_1min_pathout)
 
+        L2_1min_HDFname = os.path.join(L2_1min_pathout, 'FY4A-_LMI---_L2-_LMIE_%s.HDF' % strdate)
         # step1: 做 1MIN 数据统计
-        StatFile(strdate, L2_1min_pathin, L2_1min_pathout)
+        StatFile(strdate, L2_1min_pathin, L2_1min_HDFname)
 
         #step2: 合并文件
-        CombFile(r'./data/result/1min/20190520/FY4A-_LMI---_L2-_LMIE_20190520_TimeList.HDF',
-                 r'./data/result/1min/20190520/FY4A-_LMI---_L2-_LMIE_20190520.HDF')
+        TimeListFileName = os.path.join(PATH_TimeList, 'FY4A-_LMI---_L2-_LMIE_TimeList.HDF')
+        CombFile(TimeListFileName, L2_1min_HDFname)
 
         # step3: 绘制时间序列图
         filename = r'./data/result/1min/20190520/FY4A-_LMI---_L2-_LMIE_20190520_TimeList.HDF'
         DrawTimeList(filename)
 
         # 拼接L3级 输入、输出目录
-        L3_density_pathin = os.path.join( FILE_PATH['L3FilePath'], strdate)
-        L3_density_pathout = os.path.join( FILE_PATH['L3OutPath'], strdate)
+        L3_density_pathin = os.path.join( PATH_L3File, strdate)
+        L3_density_pathout = os.path.join( PATH_L3OUT, strdate)
         if not os.path.isdir(L3_density_pathout):
             print('%s is not exist, will be created!!' %L3_density_pathout)
             os.makedirs(L3_density_pathout)
