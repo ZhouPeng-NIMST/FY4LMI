@@ -52,8 +52,8 @@ if __name__ == '__main__':
         CombFile(TimeListFileName, L2_1min_HDFname)
 
         # step3: 绘制时间序列图
-        filename = r'./data/result/1min/20190520/FY4A-_LMI---_L2-_LMIE_20190520_TimeList.HDF'
-        DrawTimeList(filename)
+        # filename = r'./data/result/1min/20190520/FY4A-_LMI---_L2-_LMIE_20190520_TimeList.HDF'
+        DrawTimeList(TimeListFileName)
 
         # 拼接L3级 输入、输出目录
         L3_density_pathin = os.path.join( PATH_L3File, strdate)
