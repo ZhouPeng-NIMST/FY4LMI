@@ -11,14 +11,14 @@ sys.path.append(os.path.join(exepath, '../..'))
 from NCProcess import ReadNC, WriteNC
 from HDFProcess import ReadHDF, WriteHDF
 
-def StatLandLMI(filename, strdate):
+def StatLandLMI(filename, strdate, OutPath):
     Count = 0
 
     if not filename.endswith('.txt'):
         return Count
 
     nowdate = datetime.datetime.strptime(strdate, '%Y_%m_%d')
-    txtname = os.path.join('./data/LAND_LMIE', '%s.txt' % (nowdate.strftime('%Y%m%d')))
+    txtname = os.path.join(OutPath, '%s.txt' % (nowdate.strftime('%Y%m%d')))
     fp = open(txtname, 'w')
     data = np.loadtxt(filename,dtype=np.str)
     print(data.shape)
@@ -46,12 +46,15 @@ def StatLandLMI(filename, strdate):
 
 
 if __name__ == '__main__':
-    pathin = r'D:\FY4LMI\EventStatistics\data\adtd201806'
-    fils = os.listdir(pathin)
+    ADTDPATH = r'D:\FY4LMI\EventStatistics\data\adtd201806'
+    OutPath = r'./data/LAND_LMIE'
+
+    fils = os.listdir(ADTDPATH)
     fils.sort()
 
     for filename in fils:
-        StatLandLMI(os.path.join(pathin, filename), filename.split('.')[0])
+        if filename.endswith('.txt'):
+            StatLandLMI(os.path.join(ADTDPATH, filename), filename.split('.')[0], OutPath)
 
 
 

@@ -47,9 +47,25 @@ def StatLMIEvent(filelist, mask=None):
     return EventCount
 
 if __name__ == '__main__':
+    ################################################################
+    # FY4A LMIE L2数据
+    FY4A_LMI_PATH = r'Z:\FY4A\LMI\L2\LMIE\REGX'
+
+    # 地基观测数据
+    ADTD_PATH = r'D:\FY4LMI\EventStatistics\data\adtd201806'
+
+    # 输出结果文件名
+    # txtname = r'./data/MinGrade.txt'
+
+    # 输出结果路径
+    OutPath = './data/'
+
+    # 处理的起始日期和结束日期
+    strStarDate = '20180601'
+    strEndDate = '20180701'
+    ################################################################
 
     chinamask = ReadHDF(r'../ShapeClipRaster/ChinaMask.HDF', 'mask')
-    pathin = r'Z:\FY4A\LMI\L2\LMIE\REGX'
     argv = sys.argv
     if len(argv) == 3:
         s_time = datetime.datetime.strptime(argv[1], "%Y%m%d", )
@@ -58,19 +74,21 @@ if __name__ == '__main__':
         s_time = datetime.datetime.strptime(argv[1], "%Y%m%d")
         e_time = datetime.datetime.strptime(argv[1], "%Y%m%d")
     else:
-        s_time = datetime.datetime.strptime('20180601', "%Y%m%d")
-        e_time = datetime.datetime.strptime('20180701', "%Y%m%d")
+        s_time = datetime.datetime.strptime(strStarDate, "%Y%m%d")
+        e_time = datetime.datetime.strptime(strEndDate, "%Y%m%d")
 
     dt = s_time
     while dt <= e_time:
         strdate = dt.strftime('%Y%m%d')
-        txtname = r'./data/%s.txt' %(strdate)
+        txtname = os.path.join(OutPath, '%s.txt' %(strdate))
         if os.path.isfile(txtname):
             fp = open(txtname, 'a')
         else:
             fp = open(txtname, 'w')
 
-        LMIEPath = os.path.join(pathin, dt.strftime('%Y'), dt.strftime('%Y%m%d'))
+        LMIEPath = os.path.join(FY4A_LMI_PATH, dt.strftime('%Y'), dt.strftime('%Y%m%d'))
+        if not os.path.isdir(LMIEPath):
+            LMIEPath = FY4A_LMI_PATH
 
         fils = glob.glob(os.path.join(LMIEPath, 'FY4A-_LMI---_N_REGX_1047E_L2-_LMIE_SING_NUL_%s*_N*V1.NC' %(dt.strftime('%Y%m%d%H'))))
         fils.sort()
