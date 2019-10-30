@@ -4,7 +4,7 @@ import os
 import h5py
 
 
-def WriteHDF(filename, sdsname, data,overwrite = 1, dictfileattrs=None, dictdsetattrs = None, dictgrpattrs = None):
+def WriteHDF(filename, sdsname = None, data = None, overwrite = 1, dictfileattrs=None, dictdsetattrs = None, dictgrpattrs = None):
     '''
     mode
     r Readonly, file must exist
@@ -24,19 +24,22 @@ def WriteHDF(filename, sdsname, data,overwrite = 1, dictfileattrs=None, dictdset
         fout = h5py.File(filename, 'a')
 
     # fout[sdsname] = data
+    if not  sdsname is None :
+        if not data is None:
+            dsetid = fout.create_dataset(sdsname,  data=data, compression=5)
+            print('%s %s create success...' %(filename,sdsname))
 
-    dsetis = fout.create_dataset(sdsname,  data=data)
+            if not dictdsetattrs is None:
+                for key in dictdsetattrs.keys():
+                    dsetid.attrs[key] = dictdsetattrs[key]
+                print('%s %s create success...' % (filename, sdsname))
 
     if not dictfileattrs is None:
         for key in dictfileattrs.keys():
             fout.attrs[key] = dictfileattrs[key]
-
-    if not dictdsetattrs is None:
-        for key in dictdsetattrs.keys():
-            dsetis.attrs[key] = dictdsetattrs[key]
+        print('%s %s create success...' % (filename, 'File Info'))
 
     fout.close()
-
 
 
 def writedataset(out,name,data=None,fillvalue=-999999.0):
