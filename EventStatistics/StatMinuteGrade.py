@@ -1,4 +1,10 @@
 #coding:utf-8
+'''
+逐分钟统计FY4A 和ADTD LMI 闪电事件数
+@author： libin
+@e_mail: libin033@163.com
+'''
+
 import os
 import sys
 import datetime
@@ -11,8 +17,9 @@ sys.path.append(os.path.join(exepath, '../..'))
 from NCProcess import ReadNC, WriteNC
 from HDFProcess import ReadHDF, WriteHDF
 
-xresolut = 0.05
-yresolut = 0.05
+from config import *
+
+
 
 def AnalysisFY4AFile(filelist):
     dictfile = {}
@@ -36,7 +43,7 @@ def StatLMIEvent(filename, mask=None):
     :param mask:
     :return:
     '''
-    EventCount = -888
+    EventCount = -999
 
     if not os.path.isfile(filename):
         print('%s is not exist, will be continue...' %filename)
@@ -86,41 +93,56 @@ def StatLandLMI(filename):
 
     return sdate
 
+def StatMinuteGrade(strdate, WorkType = 1):
+
+    if WorkType == 0 :
+        return None
+    dt = datetime.datetime.strptime(strdate, '%Y%m%d%H%M%S')
+
+
 if __name__ == '__main__':
 
-    ################################################################
+    #########################此处需要手动修改#######################################
     # FY4A LMIE L2数据
-    FY4A_LMI_PATH = r'Z:\FY4A\LMI\L2\LMIE\REGX'
+    # FY4A_LMI_PATH = r'./data/input/FY4A'
+    FY4A_LMI_PATH = PATH_1MinFile
 
     # 地基观测数据
-    ADTD_PATH = r'D:\FY4LMI\EventStatistics\data\adtd201806'
+    # ADTD_PATH = r'./data/input/ADTD'
+    ADTD_PATH = PATH_Input_ADTD
 
-    # 输出结果文件名
-    txtname = r'./data/MinGrade.txt'
+    # # 输出结果文件名
+    # txtname = r'./data/MinGrade.txt'
+
+    # 输出结果路径
+    # OutPath = './data/result'
+    OutPath = PATH_Result_LMIE_Events
 
     # 处理的起始日期和结束日期
-    strStarDate = '20180601'
-    strEndDate = '20180701'
+    strStarDate = '20180601000000'
+    strEndDate = '20180701000000'
     ################################################################
 
     argv = sys.argv
     if len(argv) == 3:
-        s_time = datetime.datetime.strptime(argv[1], "%Y%m%d", )
-        e_time = datetime.datetime.strptime(argv[2], "%Y%m%d")
+        s_time = datetime.datetime.strptime(argv[1], "%Y%m%d%H%M%S", )
+        e_time = datetime.datetime.strptime(argv[2], "%Y%m%d%H%M%S")
     elif len(argv) == 2:
-        s_time = datetime.datetime.strptime(argv[1], "%Y%m%d")
-        e_time = datetime.datetime.strptime(argv[1], "%Y%m%d")
+        s_time = datetime.datetime.strptime(argv[1], "%Y%m%d%H%M%S")
+        e_time = datetime.datetime.strptime(argv[1], "%Y%m%d%H%M%S")
     else:
-        s_time = datetime.datetime.strptime(strStarDate, "%Y%m%d")
-        e_time = datetime.datetime.strptime(strEndDate, "%Y%m%d")
+        s_time = datetime.datetime.strptime(strStarDate, "%Y%m%d%H%M%S")
+        e_time = datetime.datetime.strptime(strEndDate, "%Y%m%d%H%M%S")
 
     # 获取掩膜数据
-    chinamask = ReadHDF(r'../ShapeClipRaster/ChinaMask.HDF', 'mask')
+    chinamask = ReadHDF(China_Mask_FileName, 'mask')
+    print('It will do from %s to %s...' % (strStarDate, strEndDate))
+    txtname = os.path.join(OutPath,'%s_%s_Minutes.txt' % (s_time.strftime('%Y%m%d%H%M%S'), e_time.strftime('%Y%m%d%H%M%S')))
     fp = open(txtname, 'w')
     fp.close()
+
     dt = s_time
     while dt <= e_time:
-        print(dt)
         # 统计FY4A的闪电
         LMIEPath = os.path.join(FY4A_LMI_PATH, dt.strftime('%Y'), dt.strftime('%Y%m%d'))
         FY4A_fils = glob.glob(os.path.join(LMIEPath, 'FY4A-_LMI---_N_REGX_1047E_L2-_LMIE_SING_NUL_%s*_N*V1.NC' % (
@@ -142,7 +164,7 @@ if __name__ == '__main__':
             if key in dictfile:
                 Count_FY4A_LMIE = StatLMIEvent(dictfile[key],  chinamask)
             else:
-                print(key, dictfile)
+                # print(key, dictfile)
                 Count_FY4A_LMIE = -999
 
             # 统计地基观测闪电
@@ -152,8 +174,9 @@ if __name__ == '__main__':
                 Count_ADTD_LMIE = len(s1)
             else:
                 Count_ADTD_LMIE = -999
+            print('%-15s %8d %8d' % (istar.strftime('%Y%m%d%H%M%S'), Count_FY4A_LMIE, Count_ADTD_LMIE))
             fp = open(txtname, 'a')
-            fp.write('%-12s %8d %8d\n' % (istar.strftime('%Y%m%d%H%M'), Count_FY4A_LMIE, Count_ADTD_LMIE))
+            fp.write('%-15s %8d %8d\n' % (istar.strftime('%Y%m%d%H%M%S'), Count_FY4A_LMIE, Count_ADTD_LMIE))
             fp.close()
             istar += datetime.timedelta(minutes=1)
 

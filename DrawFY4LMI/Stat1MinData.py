@@ -12,7 +12,7 @@ sys.path.append(os.path.join(exepath, '../..'))
 
 from NCProcess import *
 from HDFProcess import *
-
+from config import *
 
 def OutPutHDF(filename, NowTime, StarDatetime, EndDatetime, Num, Events):
     WriteHDF(filename, 'StarDatetime', StarDatetime, overwrite=1)
@@ -91,7 +91,25 @@ def StatFile(strdate, pathin=None, outHDFname=None, flag = 1):
     print("%s write success!!!" %outHDFname)
 
 
+def Stat1MinData(strdate, WorkType = 1):
+    '''
 
+    :param strdate:
+    :param WorkType:
+    :return:
+    '''
+    if WorkType == 0 :
+        return None
+    dt = datetime.datetime.strptime(strdate, '%Y%m%d%H%M%S')
+    L2_1min_pathin = os.path.join(PATH_1MinFile, dt.strftime('%Y%m%d'))
+    L2_1min_pathout = os.path.join(PATH_1MinOut, dt.strftime('%Y%m%d'))
+    if not os.path.isdir(L2_1min_pathout):
+        print('%s is not exist, will be created!!' % L2_1min_pathout)
+        os.makedirs(L2_1min_pathout)
+
+    L2_1min_HDFname = os.path.join(L2_1min_pathout, 'FY4A-_LMI---_L2-_LMIE_%s.HDF' % dt.strftime('%Y%m%d'))
+    StatFile(dt.strftime('%Y%m%d'), L2_1min_pathin, L2_1min_HDFname)
+    print('Static 1 Minute Data Success...')
 
 if __name__ == '__main__':
     argv = sys.argv

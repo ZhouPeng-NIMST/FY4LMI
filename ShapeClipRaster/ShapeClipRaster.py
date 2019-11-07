@@ -21,6 +21,7 @@ def ImageToArray(i):
     a.shape=i.im.size[1], i.im.size[0]
     return a
 
+
 def World2Pixel(geoMatrix, x, y):
     """
     Uses a gdal geomatrix (gdal.GetGeoTransform()) to calculate
@@ -128,6 +129,7 @@ def ShapeClipRaster( shapefile_filename,  FLAT, FLON, srcArray, resolutionX=0.01
 
     return clip
 
+
 def GetMask(shapefile_filename,  FLAT, FLON, resolutionX=0.01, resolutionY=0.01):
 
     if not os.path.isfile(shapefile_filename):
@@ -172,9 +174,9 @@ def GetMask(shapefile_filename,  FLAT, FLON, resolutionX=0.01, resolutionY=0.01)
     yoffset =  ulY
     print("Xoffset, Yoffset = ( %d, %d )" % ( xoffset, yoffset ))
 
-    rasterPoly = Image.new("L", (pxWidth, pxHeight), 1)
+    rasterPoly = Image.new("L", (pxWidth, pxHeight), 0)
     rasterize = ImageDraw.Draw(rasterPoly)
-
+    RegionID = 1
     for shape in inShp.shapes():
         partCount = len(shape.parts)
         print(partCount)
@@ -186,14 +188,15 @@ def GetMask(shapefile_filename,  FLAT, FLON, resolutionX=0.01, resolutionY=0.01)
                 pX = Calculate_IJ(minX, shape.points[j][0], resolutionX)
                 pY = Calculate_IJ(maxY, shape.points[j][1], resolutionY)
                 pixels.append((pX, pY))
-            rasterize.polygon(pixels, 0)
-
+            rasterize.polygon(pixels, RegionID)
+            RegionID += 1
     mask = ImageToArray(rasterPoly)
-    mask[mask==0] = 2
-    mask[mask==1] = 0
-    mask[mask==2] = 1
+    # mask[mask==0] = 2
+    # mask[mask==1] = 0
+    # mask[mask==2] = 1
 
     return mask
+
 
 if __name__ == '__main__':
     #shapefile_path, raster_path
@@ -216,7 +219,7 @@ if __name__ == '__main__':
 
     mask = GetMask(shapefile_path, lat, lon , resolutionX=xresolut, resolutionY=yresolut)
     import h5py
-    fp = h5py.File('ChinaMask.HDF', 'w')
+    fp = h5py.File('ChinaMask111.HDF', 'w')
     fp['mask'] = mask
     fp.close()
 

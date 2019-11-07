@@ -18,17 +18,11 @@ sys.path.append(os.path.join(exepath, '..'))
 
 from NCProcess import ReadNC
 from ShapeClipRaster import *
-from  HDFProcess import WriteHDF
-
-global glb_X_Resolution
-global glb_Y_Resolution
-glb_X_Resolution = 0.25
-glb_Y_Resolution = 0.25
-
-China_ShpFile =  os.path.join(exepath, '..','source','china_boundary_polygon.shp')
+from  HDFProcess import ReadHDF
+from config import *
 
 
-def DrawALLImage(outname, data, lat, lon):
+def DrawALLImage(outname, data, lat, lon, left_lon=-180.0, right_lon=180.0, top_lat=90.0, buttom_lat=-90.0):
     '''
     绘制全区域图像
     :param outname: 输出图像名
@@ -95,45 +89,6 @@ def DrawALLImage(outname, data, lat, lon):
                     linewidth=0.5,
                     color='k'
                     )
-
-    # m.readshapefile(os.path.join('../','source','china_province_polygon'),
-    #                 'states',
-    #                 drawbounds=True,
-    #                 linewidth=0.8
-    #                 )
-    #
-    # m.readshapefile(os.path.join('../','source','global_country_boundary'),
-    #                 'states',
-    #                 drawbounds=True,
-    #                 linewidth=0.5
-    #                 )
-
-    # cmap, norm, bounds = ColorBar()
-
-    # from mpl_toolkits.axes_grid1.inset_locator import inset_axes
-    # axin = inset_axes(ax, width=1.5,height=2, loc = 4)
-    # # 画子图
-    # W = 4
-    # # ax = fig.add_axes([(24-W-2.05)/24., .1, W/24., 26./(125-103)*W/21.4])
-    # m = Basemap(projection='cyl', llcrnrlat=0, urcrnrlat=26, llcrnrlon=103, urcrnrlon=125, resolution='c',)
-    # # m = Basemap(projection='cyl', llcrnrlat=m_box[1], urcrnrlat=m_box[3], llcrnrlon=m_box[0], urcrnrlon=m_box[2], resolution='c',)
-    # norm = colors.Normalize(vmin=0, vmax=10)
-    # cmap = matplotlib.cm.jet
-    # # cmap = matplotlib.cm.rainbow
-    # cmap, norm, bounds = ColorBar()
-    # # sc = plt.imshow(data, norm = norm, cmap=cmap, interpolation = 'nearest')
-    # a1,b1 =data.shape
-    # t=int(a1/180.*(90-  26))
-    # b=int(a1/180.*(90-  0))
-    # l=int(b1/360.*(180+ 103))
-    # r=int(b1/360.*(180+125))
-    # print t,b,l,r,a1,b1
-    # data1=data[b:t:-1,l:r]
-    # print( data1.shape)
-    #
-    # # sc = m.imshow(data1, norm = norm, cmap=cmap, interpolation = 'nearest')
-    # m.readshapefile(r'E:\GlobalData\china\polygon\china_province_polygon', 'states',drawbounds=True)
-
     # 画图例
     ax = fig.add_axes([0.25, 0.06, 0.5, .03])
     cb3 = matplotlib.colorbar.ColorbarBase(ax, cmap=cmap,
@@ -155,9 +110,9 @@ def DrawALLImage(outname, data, lat, lon):
     print('%s output success!!!' %outname)
 
 
-def DrawChinaImage(outname, data, lat, lon):
+def DrawChinaImage(outname, data, lat, lon, left_lon=70.0, right_lon=140.0, top_lat=60.0, buttom_lat=0.0):
     '''
-    绘制中国区域图像
+    绘制中国区域图像,其中将南海区域绘制成子图
     :param outname: 输出图像名
     :param data: 输入闪电密度数据
     :param lat: 纬度
@@ -179,10 +134,10 @@ def DrawChinaImage(outname, data, lat, lon):
     min_data_data = np.nanmin(data)
 
     # 中国区域范围
-    max_lat = 60
-    min_lat = 0
-    max_lon = 140
-    min_lon = 70
+    max_lat = China_Max_Lat
+    min_lat = China_Min_Lat
+    max_lon = China_Max_Lon
+    min_lon = China_Min_Lon
 
     # 裁剪中国区域范围内的数据
     if max_lat > max_data_lat:
@@ -241,8 +196,6 @@ def DrawChinaImage(outname, data, lat, lon):
     norm = colors.Normalize(vmin=min_data, vmax=max_data)
     cmap = matplotlib.cm.jet
 
-
-
     sc = m.imshow(data, norm = norm, cmap=matplotlib.cm.jet, interpolation = 'nearest')
     # m.scatter(lon, lat, data, norm = norm, cmap=cmap,marker='o')
     # m.scatter(lon, lat, c = data,cmap=matplotlib.cm.jet, marker='.',s = 5)
@@ -259,30 +212,6 @@ def DrawChinaImage(outname, data, lat, lon):
                     linewidth=0.5,
                     color='k'
                     )
-
-    # from mpl_toolkits.axes_grid1.inset_locator import inset_axes
-    # axin = inset_axes(ax, width=1.5,height=2, loc = 4)
-    # # 画子图
-    # W = 4
-    # # ax = fig.add_axes([(24-W-2.05)/24., .1, W/24., 26./(125-103)*W/21.4])
-    # m = Basemap(projection='cyl', llcrnrlat=0, urcrnrlat=26, llcrnrlon=103, urcrnrlon=125, resolution='c',)
-    # # m = Basemap(projection='cyl', llcrnrlat=m_box[1], urcrnrlat=m_box[3], llcrnrlon=m_box[0], urcrnrlon=m_box[2], resolution='c',)
-    # norm = colors.Normalize(vmin=0, vmax=10)
-    # cmap = matplotlib.cm.jet
-    # # cmap = matplotlib.cm.rainbow
-    # cmap, norm, bounds = ColorBar()
-    # # sc = plt.imshow(data, norm = norm, cmap=cmap, interpolation = 'nearest')
-    # a1,b1 =data.shape
-    # t=int(a1/180.*(90-  26))
-    # b=int(a1/180.*(90-  0))
-    # l=int(b1/360.*(180+ 103))
-    # r=int(b1/360.*(180+125))
-    # print t,b,l,r,a1,b1
-    # data1=data[b:t:-1,l:r]
-    # print( data1.shape)
-    #
-    # # sc = m.imshow(data1, norm = norm, cmap=cmap, interpolation = 'nearest')
-    # m.readshapefile(r'E:\GlobalData\china\polygon\china_province_polygon', 'states',drawbounds=True)
 
     # 画图例
     ax = fig.add_axes([0.25, 0.06, 0.5, .03])
@@ -372,14 +301,18 @@ def StatPix(data):
     return np.sum(flag)
 
 
-def Draw_LMI_REGX(strdate, pathin=None, pathout=None):
+def Draw_LMI_REGX(strdate, pathin=None, pathout=None, left_lon=-180, right_lon=180, top_lat=90, buttom_lat=-90):
     '''
     主程序接口，输入L3级合成文件，对合成文件进行统计并绘图
+    :param strdate:
+    :param pathin:
+    :param pathout:
     :return:
     '''
     # 解析文件名
     # filename = r'../data/FY4A-_LMI---_N_REGX_1047E_L3-_LIDS_SING_NUL_20170801000000_20170831235959_7800M_AMV01.NC'
-    startime = datetime.datetime.strptime(strdate, '%Y%m%d%H%M%S')
+    # startime = datetime.datetime.strptime(strdate, '%Y%m%d%H%M%S')
+    startime = strdate
     endtime = startime + datetime.timedelta(seconds=24*60*60-1)
     filename = os.path.join(pathin, 'FY4A-_LMI---_N_REGX_1047E_L3-_LIDS_SING_NUL_%s_%s_7800M_AMV01.NC'
                             %(startime.strftime('%Y%m%d%H%M%S'), endtime.strftime('%Y%m%d%H%M%S')))
@@ -424,19 +357,44 @@ def Draw_LMI_REGX(strdate, pathin=None, pathout=None):
     DrawALLImage(outPicName, Density, FLAT, FLON)
     DrawChinaImage(outPicName.replace('.PNG', '_CHINA.PNG'), Density, FLAT, FLON)
 
+    Line = (60 - FLAT) / xresolut + 0.5
+    Col = (FLON - 70) / yresolut + 0.5
+    Line = np.array(Line, dtype=np.int32)
+    Col = np.array(Col, dtype=np.int32)
     # 裁剪中国区域图像
-    clip = ShapeClipRaster(China_ShpFile, FLAT, FLON, Density)
+    # clip = ShapeClipRaster(China_ShpFile, FLAT, FLON, Density)
+    mask = ReadHDF(China_Mask_FileName, 'mask')
+    flag = (Line >= 0) & (Line < mask.shape[0])
+    Line = Line[flag]
+    Col = Col[flag]
+    Density = Density[flag]
+
+    flag = (Col >= 0) & (Col < mask.shape[1])
+    Line = Line[flag]
+    Col = Col[flag]
+    Density = Density[flag]
+
+    mask = mask[Line, Col]
+    Flag = mask==1
+    clip = Density[Flag]
 
     # WriteHDF('./data/clip.HDF', 'clip', clip, 1)
     # 定义输出变量列表，将输出数据存入变量中
 
-    China_pix = np.count_nonzero(clip)
-    clip[clip==0] = np.nan
-    clip[clip==65535.0] = np.nan
-    China_max = np.nanmax(clip)
-    China_min = np.nanmin(clip)
-    China_mean = np.nanmean(clip)
-    China_std = np.nanstd(clip)
+    if len(clip) <= 0 :
+        China_pix = -999
+        China_max = -999
+        China_min = -999
+        China_mean = -999
+        China_std = -999
+    else:
+        China_pix = np.count_nonzero(clip)
+        clip[clip==0] = np.nan
+        clip[clip==65535.0] = np.nan
+        China_max = np.nanmax(clip)
+        China_min = np.nanmin(clip)
+        China_mean = np.nanmean(clip)
+        China_std = np.nanstd(clip)
 
     data.append(China_mean)
     data.append(China_max)
@@ -445,6 +403,30 @@ def Draw_LMI_REGX(strdate, pathin=None, pathout=None):
     data.append(China_pix)
 
     WriteTXT(outTXTname, data, 1)
+
+def DrawREGNImage(strdate, WorkType = 1):
+    '''
+
+    :param strdate:
+    :param WorkType:
+    :return:
+    '''
+    if WorkType == 0 :
+        return None
+    dt = datetime.datetime.strptime(strdate, '%Y%m%d%H%M%S')
+    # 拼接L3级 输入、输出目录
+    # L3_density_pathin = os.path.join( PATH_L3_File, dt.strftime('%Y%m%d'))
+    L3_density_pathin = PATH_L3_File
+
+    # L3_density_pathout = os.path.join( PATH_OUT_Density, dt.strftime('%Y%m%d'))
+    L3_density_pathout = PATH_OUT_Density
+    if not os.path.isdir(L3_density_pathout):
+        print('%s is not exist, will be created!!' % L3_density_pathout)
+        os.makedirs(L3_density_pathout)
+
+    # step4: 统计L3级文件，并绘制区域图像（日期匹配，定时调用）
+    Draw_LMI_REGX(dt, L3_density_pathin, L3_density_pathout)
+
 
 if __name__ == '__main__':
 

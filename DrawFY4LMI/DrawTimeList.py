@@ -12,7 +12,7 @@ sys.path.append(os.path.join(exepath, '../..'))
 
 from NCProcess import *
 from HDFProcess import *
-
+from config import *
 
 def DrawTimeListPic(outfilename, NowTime, Events ):
 
@@ -73,12 +73,13 @@ def DrawTimeListPic(outfilename, NowTime, Events ):
 
 
 
-def DrawTimeList(filename ):
-    '''
-    绘制1分钟时间序列图
-    :param filename:
-    :return:
-    '''
+def DrawTimeList(strdate, WorkType = 1):
+
+    if WorkType == 0 :
+        return None
+    dt = datetime.datetime.strptime(strdate, '%Y%m%d%H%M%S')
+
+    filename = os.path.join(PATH_TimeList, 'FY4A-_LMI---_L2-_LMIE_TimeList.HDF')
     NowTime = ReadHDF(filename, 'NowTime')
     Events = ReadHDF(filename, 'Events')
 

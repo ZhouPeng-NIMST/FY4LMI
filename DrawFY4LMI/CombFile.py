@@ -1,8 +1,7 @@
 #coding:utf-8
 import os
 import sys
-import numpy as np
-import h5py
+import datetime
 
 exepath = os.path.dirname(__file__)
 sys.path.append(os.path.join(exepath, '..'))
@@ -10,7 +9,7 @@ sys.path.append(os.path.join(exepath, '../..'))
 
 from NCProcess import *
 from HDFProcess import *
-
+from config import *
 
 def CombFile1(fils, outname):
 
@@ -44,23 +43,34 @@ def CombFile1(fils, outname):
     WriteHDF(outname, 'Num', Num, overwrite=0)
     WriteHDF(outname, 'Events', Events ,overwrite=0)
 
-def CombFile(file1, file2, fillvalue=-999999):
-    if not os.path.isfile(file1):
-        fp1 = h5py.File(file1, 'w')
-    else:
-        fp1 = h5py.File(file1, 'a')
+def CombFile(strdate, WorkType = 1):
 
-    if not os.path.isfile(file2):
+    if WorkType == 0 :
+        return None
+    dt = datetime.datetime.strptime(strdate, '%Y%m%d%H%M%S')
+    L2_1min_pathout = os.path.join( PATH_1MinOut, dt.strftime('%Y%m%d'))
+    if not os.path.isdir(L2_1min_pathout):
+        print('%s is not exist, will be created!!' %L2_1min_pathout)
+        os.makedirs(L2_1min_pathout)
+    L2_1min_HDFname = os.path.join(L2_1min_pathout, 'FY4A-_LMI---_L2-_LMIE_%s.HDF' % dt.strftime('%Y%m%d'))
+    TimeListFileName = os.path.join(PATH_TimeList, 'FY4A-_LMI---_L2-_LMIE_TimeList.HDF')
+
+    if not os.path.isfile(TimeListFileName):
+        fp1 = h5py.File(TimeListFileName, 'w')
+    else:
+        fp1 = h5py.File(TimeListFileName, 'a')
+
+    if not os.path.isfile(L2_1min_HDFname):
         return 1
     else:
-        fp2 = h5py.File(file2, 'r')
+        fp2 = h5py.File(L2_1min_HDFname, 'r')
 
     for key in fp2.keys():
         if not key in fp1.keys():
             data2 = fp2[key][:]
             print(data2)
             # maxshape=(None,)*(data2.ndim if data2 else 1)
-            dst=fp1.create_dataset(key, data=data2, maxshape=(None,),compression=9)
+            dst=fp1.create_dataset(key, data=data2, maxshape=(None,),compression=5)
         else:
             data1 = fp1[key]
             data2 = fp2[key]
@@ -72,7 +82,7 @@ def CombFile(file1, file2, fillvalue=-999999):
     fp1.close()
     fp2.close()
 
-    return 0
+    print('Combine <<%s>> and <<%s>>  Success...' %(TimeListFileName, L2_1min_HDFname))
 
 def writedataset(out,name,data=None,fillvalue=-999999.0):
     if name in out:

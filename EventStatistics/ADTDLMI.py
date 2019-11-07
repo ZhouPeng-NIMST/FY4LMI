@@ -11,6 +11,8 @@ sys.path.append(os.path.join(exepath, '../..'))
 from NCProcess import ReadNC, WriteNC
 from HDFProcess import ReadHDF, WriteHDF
 
+from config import *
+
 def StatLandLMI(filename, strdate, OutPath):
     Count = 0
 
@@ -36,7 +38,7 @@ def StatLandLMI(filename, strdate, OutPath):
         EventCount = len(s1)
         Count += EventCount
         print(startime, EventCount)
-        fp.write('%-10s %8d\n' %(startime.strftime('%Y%m%d%H'), EventCount))
+        fp.write('%-15s %8d\n' %(startime.strftime('%Y%m%d%H%M%S'), EventCount))
     fp.close()
     print(Count)
 
@@ -46,15 +48,25 @@ def StatLandLMI(filename, strdate, OutPath):
 
 
 if __name__ == '__main__':
-    ADTDPATH = r'D:\FY4LMI\EventStatistics\data\adtd201806'
-    OutPath = r'./data/LAND_LMIE'
+    #############################################################
+    # FY4A LMIE L2数据
+    # FY4A_LMI_PATH = r'./data/input/FY4A'
+    FY4A_LMI_PATH = PATH_1MinFile
 
-    fils = os.listdir(ADTDPATH)
+    # 地基观测数据
+    # ADTD_PATH = r'./data/input/ADTD'
+    ADTD_PATH = PATH_Input_ADTD
+
+    # 结果输出目录
+    # OutPath = r'./data/result/ADTD_LMIE'
+    OutPath = PATH_Result_ADTD_LMIE
+    ############################################################
+    fils = os.listdir(ADTD_PATH)
     fils.sort()
 
     for filename in fils:
         if filename.endswith('.txt'):
-            StatLandLMI(os.path.join(ADTDPATH, filename), filename.split('.')[0], OutPath)
+            StatLandLMI(os.path.join(ADTD_PATH, filename), filename.split('.')[0], OutPath)
 
 
 
